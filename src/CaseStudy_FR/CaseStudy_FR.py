@@ -20,6 +20,10 @@ Flow:
 
  Author: Sharat Sharma
  Date: June 2024
+
+ WARNING: DO NOT RUN autopep8 ON THIS FILE AS IT WILL BREAK THE FORMATTING OF THE
+          PRINT STATEMENTS WHICH ARE INTENDED TO BE IN A SPECIFIC FORMAT.
+
 """
 
 import os
@@ -163,8 +167,7 @@ class ExploratoryDataAnalysis:
         """Report missing values in the dataset by package."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping missing report by package.")
+                f"Package variable '{self.package_var}' not found in data. Skipping missing report by package.")
             return None
 
         for one_package in self.unique_packages:
@@ -182,8 +185,7 @@ class ExploratoryDataAnalysis:
         """Visualize missing values in the dataset by package."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping missing visualization by package."
+                f"Package variable '{self.package_var}' not found in data. Skipping missing visualization by package."
             )
             return None
 
@@ -414,8 +416,7 @@ class ExploratoryDataAnalysis:
         """Visualize summary statistics for numerical columns by package."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping summary statistics visualization by package."
+                f"Package variable '{self.package_var}' not found in data. Skipping summary statistics visualization by package."
             )
             return None
 
@@ -650,8 +651,7 @@ class ExploratoryDataAnalysis:
 
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping pair plot creation.")
+                f"Package variable '{self.package_var}' not found in data. Skipping pair plot creation.")
             return None
 
         for one_package in self.unique_packages:
@@ -678,8 +678,7 @@ class ExploratoryDataAnalysis:
         """Create and save joint plot for two columns with package variable."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping joint plot creation.")
+                f"Package variable '{self.package_var}' not found in data. Skipping joint plot creation.")
             return None
 
         col_x = self.package_var
@@ -716,8 +715,7 @@ class ExploratoryDataAnalysis:
         """Create summary statistics for all packages."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping summary statistics creation.")
+                f"Package variable '{self.package_var}' not found in data. Skipping summary statistics creation.")
             return None
 
         summary_stats_dict = {}
@@ -779,8 +777,7 @@ class ExploratoryDataAnalysis:
         # and combine the results into a single DataFrame
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{
-                    self.package_var}' not found in data. Skipping combined summary statistics creation."
+                f"Package variable '{self.package_var}' not found in data. Skipping combined summary statistics creation."
             )
             return None
 
