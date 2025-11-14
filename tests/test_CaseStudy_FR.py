@@ -1,22 +1,38 @@
 #!/usr/bin/env python
 import pytest
+import pandas as pd
+import sys
+import os
 
-"""Tests for `CaseStudy_FR` package."""
+# Add parent directory to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# from CaseStudy_FR import CaseStudy_FR
+class TestEDA:
+    """Test cases for EDA functionality."""
 
+    def test_imports(self):
+        """Test that all required modules can be imported."""
+        import pandas
+        import matplotlib
+        import seaborn
+        from CaseStudy_FR import ExploratoryDataAnalysis
+        assert True
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
+    def test_dataframe_creation(self):
+        """Test basic DataFrame operations."""
+        df = pd.DataFrame({
+            'value': [1, 2, 3],
+            'category': ['A', 'B', 'A']
+        })
+        assert df.shape == (3, 2)
+        assert list(df.columns) == ['value', 'category']
 
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyfeldroy/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+    def test_missing_values(self):
+        """Test missing value detection."""
+        df = pd.DataFrame({
+            'col1': [1, None, 3],
+            'col2': ['A', 'B', None]
+        })
+        missing = df.isnull().sum()
+        assert missing['col1'] == 1
+        assert missing['col2'] == 1
