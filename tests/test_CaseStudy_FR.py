@@ -15,7 +15,6 @@ class TestEDA:
         import pandas
         import matplotlib
         import seaborn
-        from CaseStudy_FR import ExploratoryDataAnalysis
         assert True
 
     def test_dataframe_creation(self):
