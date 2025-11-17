@@ -2,3 +2,7 @@
 
 __author__ = """Sharat Sharma"""
 __email__ = 'sharat.katz@gmail.com'
+
+from .CaseStudy_FR import ExploratoryDataAnalysis
+
+__all__ = ["ExploratoryDataAnalysis"]
