@@ -38,3 +38,7 @@ finance-rocks-eda = "CaseStudy_FinanceRocks.core:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

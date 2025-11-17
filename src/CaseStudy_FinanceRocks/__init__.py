@@ -3,6 +3,6 @@
 __author__ = """Sharat Sharma"""
 __email__ = 'sharat.katz@gmail.com'
 
-from .CaseStudy_FR import ExploratoryDataAnalysis
+from CaseStudy_FinanceRocks.core import ExploratoryDataAnalysis
 
 __all__ = ["ExploratoryDataAnalysis"]

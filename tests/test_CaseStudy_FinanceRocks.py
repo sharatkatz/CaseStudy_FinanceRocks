@@ -2,8 +2,9 @@ import pytest # type: ignore
 import pandas as pd # type: ignore
 import numpy as np # type: ignore
 from unittest.mock import Mock, patch, MagicMock
+import os
 
-from CaseStudy_FinanceRocks.src.CaseStudy_FR.CaseStudy_FR import ExploratoryDataAnalysis
+from .core import ExploratoryDataAnalysis
 
 
 class TestReportMissings:
@@ -31,9 +32,9 @@ class TestReportMissings:
     # This allows us to create a controlled test environment where we can define the data directly 
     # in the test, ensuring that our tests are not dependent on external files or data sources.
     # usage: 
-    # with patch('CaseStudy_FR.os.path.join'), \
-    #      patch('CaseStudy_FR.Path'), \
-    #      patch('CaseStudy_FR.pd.read_parquet'):
+    # with patch('CaseStudy_FinanceRocks.os.path.join'), \
+    #      patch('CaseStudy_FinanceRocks.Path'), \
+    #      patch('CaseStudy_FinanceRocks.pd.read_parquet'):
     #         # test code here
     #   # -----------------------------------------------------------------------------
     #     -----------------------------------------------------------------------------
@@ -43,9 +44,9 @@ class TestReportMissings:
     @pytest.fixture
     def mock_eda_instance(self):
         """Create a mock EDA instance with test data."""
-        with patch('CaseStudy_FR.os.path.join'), \
-             patch('CaseStudy_FR.Path'), \
-             patch('CaseStudy_FR.pd.read_parquet'):
+        with patch('CaseStudy_FinanceRocks.os.path.join'), \
+             patch('CaseStudy_FinanceRocks.Path'), \
+             patch('CaseStudy_FinanceRocks.pd.read_parquet'):
             
             eda = Mock(spec=ExploratoryDataAnalysis)
             eda.customer_data = pd.DataFrame({
@@ -79,9 +80,9 @@ class TestReportMissings:
 
     def test_report_missings_no_missing_values(self):
         """Test when there are no missing values."""
-        with patch('CaseStudy_FR.os.path.join'), \
-             patch('CaseStudy_FR.Path'), \
-             patch('CaseStudy_FR.pd.read_parquet'):
+        with patch('CaseStudy_FinanceRocks.os.path.join'), \
+             patch('CaseStudy_FinanceRocks.Path'), \
+             patch('CaseStudy_FinanceRocks.pd.read_parquet'):
             
             eda = Mock(spec=ExploratoryDataAnalysis)
             eda.customer_data = pd.DataFrame({
@@ -94,7 +95,7 @@ class TestReportMissings:
             assert len(result) == 0
             assert isinstance(result, pd.Series)
 
-    @patch('CaseStudy_FR.pprint')
+    @patch('CaseStudy_FinanceRocks.pprint')
     def test_report_missings_prints_output(self, mock_pprint, mock_eda_instance):
         """Test that the method prints the missing values report."""
         with patch('builtins.print') as mock_print:
@@ -106,9 +107,9 @@ class TestReportMissings:
 
     def test_report_missings_empty_dataframe(self):
         """Test with an empty dataframe."""
-        with patch('CaseStudy_FR.os.path.join'), \
-             patch('CaseStudy_FR.Path'), \
-             patch('CaseStudy_FR.pd.read_parquet'):
+        with patch('CaseStudy_FinanceRocks.os.path.join'), \
+             patch('CaseStudy_FinanceRocks.Path'), \
+             patch('CaseStudy_FinanceRocks.pd.read_parquet'):
             
             eda = Mock(spec=ExploratoryDataAnalysis)
             eda.customer_data = pd.DataFrame()
@@ -123,9 +124,9 @@ class TestReportMissings:
                 @pytest.fixture
                 def mock_eda_instance_with_packages(self):
                     """Create a mock EDA instance with test data including packages."""
-                    with patch('CaseStudy_FR.os.path.join'), \
-                         patch('CaseStudy_FR.Path'), \
-                         patch('CaseStudy_FR.pd.read_parquet'):
+                    with patch('CaseStudy_FinanceRocks.os.path.join'), \
+                         patch('CaseStudy_FinanceRocks.Path'), \
+                         patch('CaseStudy_FinanceRocks.pd.read_parquet'):
                         
                         eda = Mock(spec=ExploratoryDataAnalysis)
                         eda.customer_data = pd.DataFrame({
@@ -141,10 +142,10 @@ class TestReportMissings:
                         eda.create_barplots_bypackage = ExploratoryDataAnalysis.create_barplots_bypackage.__get__(eda)
                         return eda
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_creates_plots_for_categorical_columns(self, mock_join, mock_makedirs, mock_sns, mock_plt, mock_eda_instance_with_packages):
                     """Test that bar plots are created for categorical/object columns only."""
                     mock_join.return_value = '/mock/path'
@@ -157,10 +158,10 @@ class TestReportMissings:
                     assert mock_sns.countplot.call_count == 4
                     assert mock_plt.savefig.call_count == 4
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_creates_correct_directory_structure(self, mock_join, mock_makedirs, mock_sns, mock_plt, mock_eda_instance_with_packages):
                     """Test that correct directories are created."""
                     mock_join.side_effect = lambda *args: '/'.join(args)
@@ -172,10 +173,10 @@ class TestReportMissings:
                     assert mock_makedirs.called
                     mock_makedirs.assert_called_with('/mock/plot/dir/bar_plots_by_package', exist_ok=True)
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_closes_figures_properly(self, mock_join, mock_makedirs, mock_sns, mock_plt, mock_eda_instance_with_packages):
                     """Test that figures are properly closed after creation."""
                     mock_join.return_value = '/mock/path'
@@ -189,10 +190,10 @@ class TestReportMissings:
                     assert mock_plt.close.call_count >= 4
                     mock_plt.close.assert_any_call('all')
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_returns_none(self, mock_join, mock_makedirs, mock_sns, mock_plt, mock_eda_instance_with_packages):
                     """Test that the method returns None."""
                     with patch('builtins.print'):
@@ -200,10 +201,10 @@ class TestReportMissings:
                     
                     assert result is None
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_prints_status_messages(self, mock_join, mock_makedirs, mock_sns, mock_plt, mock_eda_instance_with_packages):
                     """Test that status messages are printed."""
                     mock_join.return_value = '/mock/path'
@@ -218,15 +219,15 @@ class TestReportMissings:
                     final_call = mock_print.call_args_list[-1][0][0]
                     assert "All bar plots by package have been saved" in final_call
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_no_categorical_columns(self, mock_join, mock_makedirs, mock_sns, mock_plt):
                     """Test behavior when there are no categorical columns."""
-                    with patch('CaseStudy_FR.os.path.join'), \
-                         patch('CaseStudy_FR.Path'), \
-                         patch('CaseStudy_FR.pd.read_parquet'):
+                    with patch('CaseStudy_FinanceRocks.os.path.join'), \
+                         patch('CaseStudy_FinanceRocks.Path'), \
+                         patch('CaseStudy_FinanceRocks.pd.read_parquet'):
                         
                         eda = Mock(spec=ExploratoryDataAnalysis)
                         eda.customer_data = pd.DataFrame({
@@ -247,10 +248,10 @@ class TestReportMissings:
                         assert mock_plt.figure.call_count == 0
                         assert mock_sns.countplot.call_count == 0
 
-                @patch('CaseStudy_FR.plt')
-                @patch('CaseStudy_FR.sns')
-                @patch('CaseStudy_FR.os.makedirs')
-                @patch('CaseStudy_FR.os.path.join')
+                @patch('CaseStudy_FinanceRocks.plt')
+                @patch('CaseStudy_FinanceRocks.sns')
+                @patch('CaseStudy_FinanceRocks.os.makedirs')
+                @patch('CaseStudy_FinanceRocks.os.path.join')
                 def test_filters_data_by_package(self, mock_join, mock_makedirs, mock_sns, mock_plt, mock_eda_instance_with_packages):
                     """Test that data is correctly filtered by package."""
                     mock_join.return_value = '/mock/path'
@@ -267,9 +268,9 @@ class TestReportMissings:
 
 if __name__ == "__main__":
     """Test cases for the report_missings method."""
-    with patch('CaseStudy_FR.os.path.join'), \
-         patch('CaseStudy_FR.Path'), \
-         patch('CaseStudy_FR.pd.read_parquet'):
+    with patch('CaseStudy_FinanceRocks.os.path.join'), \
+         patch('CaseStudy_FinanceRocks.Path'), \
+         patch('CaseStudy_FinanceRocks.pd.read_parquet'):
              eda = Mock(spec=ExploratoryDataAnalysis)
              eda.customer_data = pd.DataFrame({
                 'col1': [1, 2, np.nan, 4],
