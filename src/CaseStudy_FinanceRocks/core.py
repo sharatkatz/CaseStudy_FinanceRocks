@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """Main module.
- File: Case CaseStudy_FR.py
+ File: core.py
 
 Summary
  Purpose: simple automated exploratory data analysis (EDA) tool that loads a Parquet dataset,
@@ -37,30 +37,84 @@ from matplotlib import pyplot as plt # type: ignore
 import seaborn as sns # type: ignore
 from pprint import pprint
 
-def setup_plot_directory():
-    """Set up the plot directory by deleting existing one and creating a new one."""
-    global plot_dir
-    global filePath
-    filePath = "../../../input_files"
-    plot_dir = os.path.join(filePath, "CaseStudy_FinanceRocks_plots")
-
-    if os.path.exists(plot_dir):
-        shutil.rmtree(plot_dir)
-        print(f"Folder '{plot_dir}' deleted.")
-    print(f"Creating new folder: {plot_dir}")
-    os.makedirs(plot_dir, exist_ok=True)
-
 
 class ExploratoryDataAnalysis:
-    """Exploratory Data Analysis class."""
+    """
+    A class for performing exploratory data analysis on customer data.
+    This class provides comprehensive data exploration capabilities including:
+    - Data loading and validation from parquet files
+    - Summary statistics generation (overall and by package)
+    - Missing value analysis and visualization
+    - Distribution plots (histograms, box plots, bar plots)
+    - Correlation analysis
+    - Joint plots and pair plots
+    - Statistical summaries export to CSV
+    Attributes:
+        plot_dir (str): Directory path where all generated plots will be saved.
+        customer_data (pd.DataFrame): The loaded customer data from the parquet file.
+        sub_columns (list): List of columns to analyze, excluding ID columns and 
+            columns starting with 'add_'.
+        package_var (str): Name of the package variable column for grouping analysis.
+        unique_packages (list): List of unique package values in the dataset.
+    Methods:
+        __init__(filePath, fileName): Initialize the EDA object and load data.
+        setup_plot_directory(plot_filepath): Set up directory for saving plots.
+        string_and_function(str, func): Helper method to print message and execute function.
+        missing_reports(): Generate and display missing value reports.
+        create_plots(): Generate all types of plots for the dataset.
+        report_missings(): Report missing values in the dataset.
+        report_missings_bypackage(): Report missing values grouped by package.
+        visualize_missings(): Create heatmap visualization of missing values.
+        visualize_missings_bypackage(): Create missing value heatmaps by package.
+        create_bar_plots(): Generate bar plots for categorical columns.
+        create_barplots_bypackage(): Generate bar plots grouped by package.
+        create_boxplots(): Generate box plots for numerical columns.
+        create_boxplots_bypackage(): Generate box plots grouped by package.
+        create_hist_plots(): Generate histogram plots for all columns.
+        create_hist_plots_bypackage(): Generate histograms grouped by package.
+        create_joint_plots(): Generate joint plots for pairs of numerical columns.
+        create_joint_plots_bypackage(): Generate joint plots grouped by package.
+        create_pair_plots(): Generate pair plots for numerical columns.
+        create_pair_plots_bypackage(): Generate pair plots grouped by package.
+        jointplot_with_package_variable(): Create joint plots with package as x-axis.
+        visualize_summary_statistics(): Visualize summary statistics as heatmap.
+        visualize_correlation_matrix(): Visualize correlation matrix as heatmap.
+        visualize_summary_statistics_bypackage(): Visualize summary stats by package.
+        visualize_combined_summary_statistics_by_package_numeric(): Visualize combined 
+            numerical summary statistics by package.
+        visualize_combined_summary_statistics_by_package(): Visualize all combined 
+            summary statistics by package.
+        create_summary_statistics_for_all_packages(): Generate summary statistics 
+            dictionary for all packages.
+        create_combined_summary_statistics_by_package(): Create combined summary 
+            statistics DataFrame for all packages.
+        create_combined_summary_statistics_by_package_numeric(): Create combined 
+            numerical summary statistics by package.
+        create_combined_summary_statistics_by_package_categorical(): Create combined 
+            categorical summary statistics by package.
+        export_combined_summary_statistics_by_package(output_file): Export combined 
+            summary statistics to CSV.
+        export_combined_summary_statistics_by_package_numeric(output_file): Export 
+            numerical summary statistics to CSV.
+        export_combined_summary_statistics_by_package_categorical(output_file): Export 
+            categorical summary statistics to CSV.
+        test_create_plots(): Test method for creating bar plots.
+    Raises:
+        FileNotFoundError: If the specified data file does not exist.
+    Example:
+        >>> eda = ExploratoryDataAnalysis(filePath="../data", fileName="customer_data.parquet")
+        >>> eda.create_plots()
+        >>> eda.export_combined_summary_statistics_by_package("summary_stats.csv")
+    """
 
-    def __init__(self, filePath: str, fileName: str):
+    def __init__(self, filePath: str="../data", fileName: str="customer_data.parquet"):
         """_summary_
 
         Args:
             filePath (str): _path to the data file
             fileName (str): _name of the data file
         """
+        self.plot_dir: str = self.setup_plot_directory(filePath)
         input_file_full_path = os.path.join(filePath, fileName)
         if Path(input_file_full_path).is_file() is False:
             raise FileNotFoundError(
@@ -72,7 +126,6 @@ class ExploratoryDataAnalysis:
                 (_.lower().endswith("_id")) or (
                     _.lower() == "id") or (
                     _.lower().startswith("add_")))]
-        self.plot_dir = plot_dir
         self.package_var = "package"
         self.unique_packages = self.customer_data[self.package_var].unique(
         ) if self.package_var in self.customer_data.columns else [None]
@@ -89,7 +142,58 @@ class ExploratoryDataAnalysis:
             "combined_summary_statistics_by_package.csv"
         )
 
+    def setup_plot_directory(self, plot_filepath: str = "../plots") -> str:
+        """Set up the plot directory by deleting existing one and creating a new one."""
+        plot_dir: str = os.path.join(plot_filepath, "CaseStudy_FinanceRocks_plots")
+
+        if os.path.exists(plot_dir):
+            shutil.rmtree(plot_dir)
+            print(f"Folder '{plot_dir}' deleted.")
+        print(f"Creating new folder: {plot_dir}")
+        os.makedirs(plot_dir, exist_ok=True)
+        return plot_dir
+
+
     def string_and_function(self, str: str, func: Callable):
+        """
+        Execute a callable while printing a formatted header section comprised of a
+        separator line and a descriptive message.
+
+        This helper is useful for visually separating logical blocks of output when
+        running a sequence of functions (e.g., in exploratory / diagnostic scripts).
+
+        Parameters
+        ----------
+        str : str
+            A descriptive title or message to print above the function's output.
+            Note: the parameter name shadows the built-in 'str' type; consider
+            renaming (e.g., 'message' or 'title') for clarity.
+        func : Callable
+            A zero-argument callable to be invoked. Its return value is intentionally
+            ignored; only its side effects (such as printing) matter.
+
+        Side Effects
+        ------------
+        Prints two leading blank lines, a horizontal separator line (80 dashes),
+        the provided message, and then any output produced by the callable.
+
+        Returns
+        -------
+        None
+            Always returns None; the callable's result is discarded.
+
+        Raises
+        ------
+        Any exception raised inside the provided callable will propagate.
+
+        Example
+        -------
+        def show_stats():
+            print("Records:", 128)
+            print("Mean:", 42.7)
+
+        self.string_and_function("Data Summary", show_stats)
+        """
         print("\n\n")
         print("-" * 80)
         print(str, "\n")
@@ -97,6 +201,37 @@ class ExploratoryDataAnalysis:
         return None
 
     def missing_reports(self):
+        """
+        Generate and display a suite of missing-value diagnostics.
+        This convenience method sequentially:
+          1. Prints a header and runs `report_missings` (overall missing value summary).
+          2. Prints a header and runs `report_missings_bypackage` (missing summary grouped by package).
+          3. Prints a header and runs `visualize_missings` (global missingness visualization).
+          4. Prints a header and runs `visualize_missings_bypackage` (missingness visualization grouped by package).
+        Each step delegates to `self.string_and_function(header: str, func: Callable)` which is expected
+        to handle the display of the header string followed by execution of the provided function.
+        Assumptions:
+          - The instance implements:
+              - report_missings()
+              - report_missings_bypackage()
+              - visualize_missings()
+              - visualize_missings_bypackage()
+              - string_and_function(string: str, func: Callable)
+          - These called methods perform their own printing / plotting side effects.
+        Side Effects:
+          - Produces console output (textual reports).
+          - Produces visual output (e.g., plots) if the visualization methods generate them.
+        Returns:
+          None
+            The method is used purely for its side effects.
+        Raises:
+          AttributeError: If any of the expected reporting/visualization methods are missing.
+          Exception: Propagates any exception raised within the called reporting/visualization functions.
+        Notes:
+          Use this as a high-level "one-shot" diagnostic to inspect data completeness both globally and
+          segmented by package. For programmatic access to the underlying data, call the individual
+          component methods directly instead of this aggregated runner.
+        """
         strings = [
             "Here is the missing values report:\n",  # 6
             "Here is the missing values report by package:\n",  # 7
@@ -117,6 +252,42 @@ class ExploratoryDataAnalysis:
         return None
 
     def create_plots(self):
+        """Generate and dispatch a predefined sequence of exploratory plots and reports.
+        This convenience method loops over an ordered list of (label, callable) pairs
+        and delegates plotting/reporting work to the helper method
+        `self.string_and_function(label, func)`. Each callable is expected to
+        produce either a visualization (e.g., histogram, bar plot, box plot, correlation
+        matrix) or a missing-value / summary statistics report for the dataset held
+        by the instance.
+        The sequence currently includes (in order):
+        1. Histograms of numeric variables.
+        2. Bar plots of categorical/count-like variables.
+        3. Box plots of numeric variables overall.
+        4. Box plots grouped by package.
+        5. Bar plots grouped by package.
+        6. Missing values report (global).
+        7. Missing values report grouped by package.
+        8. Visual (matrix/map) of missing values (global).
+        9. Visual (matrix/map) of missing values grouped by package.
+        10. Summary statistics visualization (global).
+        11. Correlation matrix visualization.
+        12. Summary statistics visualization grouped by package.
+        13. Combined summary statistics by package (numeric only).
+        Side Effects:
+        - Produces and (likely) saves or displays multiple figures/reports.
+        - May log or print the status string preceding each generated artifact.
+        Returns:
+            None
+        Raises:
+            Any exception propagated from the individual plot/report generation
+            methods or from `self.string_and_function` (e.g., data validation errors,
+            plotting library errors).
+        Notes:
+        - The ordering in both the `strings` and `functions` lists must remain aligned.
+          Adding/removing a plot requires modifying both lists consistently.
+        - This method does not perform error handling around individual calls; consider
+          wrapping `self.string_and_function` internally if partial completion is desired.
+        """
         strings = [
             "Create hist plots:\n",  # 1
             "Creating bar plots:\n",  # 2
@@ -918,8 +1089,7 @@ if __name__ == "__main__":
     import traceback
     try:
         fileName = "customer_data.parquet"
-        setup_plot_directory()
-        eda = ExploratoryDataAnalysis(filePath, fileName)
+        eda = ExploratoryDataAnalysis(fileName=fileName)
         eda.create_plots()
         print("\n\n")
         print("EDA execution completed successfully.")
@@ -927,3 +1097,5 @@ if __name__ == "__main__":
         print("An error occurred during EDA execution:")
         traceback.print_exc()
         sys.exit(1)
+
+# PYTEST_FIX_VERIFICATION_1763396399
