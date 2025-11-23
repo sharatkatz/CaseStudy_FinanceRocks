@@ -343,7 +343,7 @@ class ExploratoryDataAnalysis:
         """Report missing values in the dataset by package."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable self.package_var}' not found in data. Skipping missing report by package.")
+                f"Package variable {self.package_var}' not found in data. Skipping missing report by package.")
             return None
 
         for one_package in self.unique_packages:
