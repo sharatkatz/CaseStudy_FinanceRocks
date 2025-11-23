@@ -301,8 +301,10 @@ class ExploratoryDataAnalysis:
             "Visualizing summary statistics:\n",  # 10
             "Visualizing correlation matrix:\n",  # 11
             "Visualizing summary statistics by package:\n",  # 12
-            # 13
-            "Visualizing combined summary statistics by package (numerical):\n",
+            "Visualizing combined summary statistics by package (numerical):\n",  # 13
+            "Create joint plots:\n",  # 14
+            "Create Custom plot v1:\n",  # 15
+            "Create Custom plot v2:\n",  # 16
         ]
 
         functions = [
@@ -319,6 +321,9 @@ class ExploratoryDataAnalysis:
             self.visualize_correlation_matrix,  # 11
             self.visualize_summary_statistics_bypackage,  # 12
             self.visualize_combined_summary_statistics_by_package_numeric,  # 13
+            self.create_joint_plots,  # 14
+            self.create_custom_joint_plots_v1,  # 15
+            self.create_custom_joint_plots_v2,  # 16
         ]
 
         for string, func in zip(strings, functions):
@@ -338,7 +343,7 @@ class ExploratoryDataAnalysis:
         """Report missing values in the dataset by package."""
         if self.package_var not in self.customer_data.columns:
             print(
-                f"Package variable '{self.package_var}' not found in data. Skipping missing report by package.")
+                f"Package variable self.package_var}' not found in data. Skipping missing report by package.")
             return None
 
         for one_package in self.unique_packages:
@@ -408,9 +413,11 @@ class ExploratoryDataAnalysis:
         """Create and save bar plots for each categorical column."""
         # Iterate through each column and create a bar plot
         for column in self.sub_columns:
-            if pd.api.types.is_categorical_dtype(
-                    self.customer_data[column]) or pd.api.types.is_object_dtype(
-                    self.customer_data[column]):
+            if isinstance(
+                self.customer_data[column].dtype, pd.CategoricalDtype
+                ) or isinstance(
+                    self.customer_data[column].dtype, object
+                ):
                 plt.figure(figsize=(12, 10))
                 sns.countplot(x=self.customer_data[column])
                 plt.title(f'Bar Plot of {column}')
@@ -436,9 +443,11 @@ class ExploratoryDataAnalysis:
         # Iterate through each column and create a bar plot
         for one_package in self.unique_packages:
             for column in self.sub_columns:
-                if pd.api.types.is_categorical_dtype(
-                        self.customer_data[column]) or pd.api.types.is_object_dtype(
-                        self.customer_data[column]):
+                if isinstance(
+                    self.customer_data[column].dtype, pd.CategoricalDtype
+                    ) or isinstance(
+                        self.customer_data[column].dtype, object
+                    ):
                     plt.figure(figsize=(12, 10))
                     sns.countplot(
                         x=self.customer_data.loc[
@@ -1084,6 +1093,83 @@ class ExploratoryDataAnalysis:
 
         return None
 
+    def create_custom_joint_plots_v1(self):
+        """Create joint plot of total_SI_PI_vouchers_months_used and mobile_user_count"""
+        numeric_columns = [
+            col for col in ["total_SI_PI_vouchers_months_used", "mobile_user_count"] if pd.api.types.is_numeric_dtype(
+                self.customer_data[col])]
+        # Iterate through each pair of numerical columns and create a joint
+        # plot
+        for i in range(len(numeric_columns)):
+            for j in range(i + 1, len(numeric_columns)):
+                col_x = numeric_columns[i]
+                col_y = numeric_columns[j]
+
+                # Create a new figure for each plot
+                plt.figure(figsize=(12, 10))
+
+                g = sns.JointGrid(
+                    x=self.customer_data[col_x],
+                    y=self.customer_data[col_y]
+                )
+                g.plot_joint(sns.scatterplot, s=100, alpha=.5)
+                g.plot_marginals(sns.histplot, kde=False)
+                plt.suptitle(f'Joint Plot of {col_x} vs {col_y}')
+                plt.xticks(rotation=45)
+                plt.tight_layout()  # Adjust plot to prevent labels from overlapping
+
+                joint_plot_dir = os.path.join(
+                    self.plot_dir, "joint_plot_dir")
+                os.makedirs(joint_plot_dir, exist_ok=True)
+                save_path = os.path.join(
+                    joint_plot_dir, f"{col_x}_vs_{col_y}_jointplot.png")
+                plt.savefig(save_path, bbox_inches='tight')
+                plt.cla()   # Clear the axes
+                plt.clf()   # Clear the figure
+                plt.close()  # Close the figure to free memory
+                print(f"Saved joint plot for columns: {save_path}")
+
+        print("All joint plots have been saved.\n\n")
+        return None
+        
+    def create_custom_joint_plots_v2(self):
+        """Create joint plot of total_SI_PI_vouchers_months_used and line_total_vat_0_rev_ex_employees"""
+        numeric_columns = [
+            col for col in ["total_SI_PI_vouchers_months_used", "line_total_vat_0_rev_ex_employees"] if pd.api.types.is_numeric_dtype(
+                self.customer_data[col])]
+        # Iterate through each pair of numerical columns and create a joint
+        # plot
+        for i in range(len(numeric_columns)):
+            for j in range(i + 1, len(numeric_columns)):
+                col_x = numeric_columns[i]
+                col_y = numeric_columns[j]
+
+                # Create a new figure for each plot
+                plt.figure(figsize=(12, 10))
+
+                g = sns.JointGrid(
+                    x=self.customer_data[col_x],
+                    y=self.customer_data[col_y]
+                )
+                g.plot_joint(sns.scatterplot, s=100, alpha=.5)
+                g.plot_marginals(sns.histplot, kde=False)
+                plt.suptitle(f'Joint Plot of {col_x} vs {col_y}')
+                plt.xticks(rotation=45)
+                plt.tight_layout()  # Adjust plot to prevent labels from overlapping
+
+                joint_plot_dir = os.path.join(
+                    self.plot_dir, "joint_plot_dir")
+                os.makedirs(joint_plot_dir, exist_ok=True)
+                save_path = os.path.join(
+                    joint_plot_dir, f"{col_x}_vs_{col_y}_jointplot.png")
+                plt.savefig(save_path, bbox_inches='tight')
+                plt.cla()   # Clear the axes
+                plt.clf()   # Clear the figure
+                plt.close()  # Close the figure to free memory
+                print(f"Saved joint plot for columns: {save_path}")
+
+        print("All joint plots have been saved.\n\n")
+        return None
 
 if __name__ == "__main__":
     import traceback
