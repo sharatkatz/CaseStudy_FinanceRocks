@@ -25,6 +25,8 @@ This Python script provides a comprehensive automated Exploratory Data Analysis 
 ### Group Analysis
 - **Package-based Analysis**: All analyses can be segmented by a "package" variable
 - **Comparative Statistics**: Side-by-side comparisons across different packages
+- **Parallel Processing**: Faster generation of joint plots using parallel processing
+- **Custom Visualizations**: Specific joint plots for key business metrics
 
 ## Requirements
 
@@ -43,14 +45,14 @@ pathlib
 
 ## Usage
 
-### Basic Execution
+### Basic Execution from inside the src directory
 ```bash
-python CaseStudy_FR.py
+python -m CaseStudy_FinanceRocks/core.py
 ```
 
 ### As a Module
 ```python
-from CaseStudy_FR import ExploratoryDataAnalysis, setup_plot_directory
+from CaseStudy_FinanceRocks import ExploratoryDataAnalysis, setup_plot_directory
 
 # Set up plot directory
 setup_plot_directory()
@@ -96,6 +98,9 @@ CaseStudy_FinanceRocks_plots/
 - `create_bar_plots()`: Frequency plots for categorical variables
 - `create_boxplots()`: Distribution analysis for numerical variables
 - `create_joint_plots()`: Bivariate relationship analysis
+- `create_custom_joint_plots_v1()`: Joint plot for `total_SI_PI_vouchers_months_used` vs `mobile_user_count`
+- `create_custom_joint_plots_v2()`: Joint plot for `total_SI_PI_vouchers_months_used` vs `line_total_vat_0_rev_ex_employees`
+- `speed_up_joint_plot()`: Parallelized version of joint plot creation
 
 
 ## Customization

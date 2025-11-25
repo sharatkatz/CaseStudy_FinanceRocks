@@ -20,6 +20,7 @@ Flow:
 
  Author: Sharat Sharma
  Date: November 2025
+ Usage: (from CaseStudy_FinanceRocks/src) python CaseStudy_FinanceRocks/core.py
 
  WARNING: DO NOT RUN autopep8 ON THIS FILE AS IT WILL BREAK THE FORMATTING OF THE
           PRINT STATEMENTS WHICH ARE INTENDED TO BE IN A SPECIFIC FORMAT.
@@ -31,11 +32,13 @@ from pathlib import Path
 import sys
 import shutil
 from typing import Optional, List, Callable
+import concurrent.futures
 
 import pandas as pd # type: ignore
 from matplotlib import pyplot as plt # type: ignore
 import seaborn as sns # type: ignore
 from pprint import pprint
+from utils import timethis
 
 
 class ExploratoryDataAnalysis:
@@ -305,6 +308,7 @@ class ExploratoryDataAnalysis:
             "Create joint plots:\n",  # 14
             "Create Custom plot v1:\n",  # 15
             "Create Custom plot v2:\n",  # 16
+            "speed up joint plot:\n",  # 17
         ]
 
         functions = [
@@ -324,6 +328,7 @@ class ExploratoryDataAnalysis:
             self.create_joint_plots,  # 14
             self.create_custom_joint_plots_v1,  # 15
             self.create_custom_joint_plots_v2,  # 16
+            self.speed_up_joint_plot,  # 17
         ]
 
         for string, func in zip(strings, functions):
@@ -797,6 +802,55 @@ class ExploratoryDataAnalysis:
                 plt.close()  # Close the figure to free memory
                 print(f"Saved joint plot for columns: {save_path}")
 
+        print("All joint plots have been saved.\n\n")
+        return None
+
+    def _create_single_joint_plot(self, col_x, col_y, data_x, data_y, output_dir):
+        """Helper function to create a single joint plot."""
+        try:
+            plt.figure(figsize=(12, 10))
+            g = sns.JointGrid(x=data_x, y=data_y)
+            g.plot_joint(sns.scatterplot, s=100, alpha=.5)
+            g.plot_marginals(sns.histplot, kde=False)
+            plt.suptitle(f'Joint Plot of {col_x} vs {col_y}')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            os.makedirs(output_dir, exist_ok=True)
+            save_path = os.path.join(output_dir, f"{col_x}_vs_{col_y}_jointplot.png")
+            plt.savefig(save_path, bbox_inches='tight')
+            plt.close()
+            return f"Saved joint plot for columns: {save_path}"
+        except Exception as e:
+            return f"Failed to save joint plot for {col_x} vs {col_y}: {e}"
+
+    @timethis
+    def speed_up_joint_plot(self):
+        """speed up the process of creating joint plots using parallel processing"""
+        numeric_columns = [
+            col for col in self.sub_columns if pd.api.types.is_numeric_dtype(
+                self.customer_data[col])]
+        joint_plot_dir = os.path.join(self.plot_dir, "joint_plot_dir")
+        
+        tasks = []
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            for i in range(len(numeric_columns)):
+                for j in range(i + 1, len(numeric_columns)):
+                    col_x = numeric_columns[i]
+                    col_y = numeric_columns[j]
+                    
+                    # Submit task
+                    tasks.append(executor.submit(
+                        self._create_single_joint_plot,
+                        col_x,
+                        col_y,
+                        self.customer_data[col_x],
+                        self.customer_data[col_y],
+                        joint_plot_dir
+                    ))
+            
+            # Wait for completion and print results
+            for future in concurrent.futures.as_completed(tasks):
+                print(future.result())
         print("All joint plots have been saved.\n\n")
         return None
 

@@ -16,7 +16,7 @@ Flow:
     5. Run the tests.
 
 Usage:
-    pytest test_core.py
+    pytest tests/test_core.py::TestVisualization::test_create_barplots_bypackage -v -s
 
 Author: Sharat Sharma
 Date: November 2025
